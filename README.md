@@ -112,6 +112,69 @@ Item findById(Integer itemId);
 
 This query ensures that users can access comprehensive information about a specific item.
 
+
+Authentication and Authorization
+Farm to Market's REST API incorporates robust authentication and authorization procedures to ensure that only authenticated users with the appropriate permissions can access their accounts and perform authorized actions. In our API, we utilize JSON Web Tokens (JWT) for secure authentication.
+
+JSON Web Tokens (JWT)
+A JWT is a compact and self-contained way to securely transmit information between parties as a JSON object. In Farm to Market, JWTs play a crucial role in user authentication. Here's an overview of how they work:
+
+User Login: When a user logs in, our system generates a JWT containing user-specific information and a unique identifier. The token is signed with a secret key that only the server knows.
+
+Token Issuance: The server sends this token back to the client.
+
+Subsequent Requests: For every request made by the user to our API, the JWT is included in the request's header.
+
+Token Verification: The server verifies the token's signature to ensure it hasn't been tampered with.
+
+Authorization: If the token is valid and the user has the required permissions, the request is processed. Otherwise, the server returns an error.
+
+Code Example: Token Generation
+Here's a simplified code snippet for generating a JWT upon user login:
+
+java
+Copy code
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+// Generate a JWT token
+public String generateToken(UserDetails userDetails) {
+    long expiration = /* Set the token expiration time */;
+    String secret = /* Your secret key */;
+    
+    return Jwts.builder()
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(new Date(System.currentTimeMillis()))
+            .setExpiration(new Date(System.currentTimeMillis() + expiration))
+            .signWith(SignatureAlgorithm.HS512, secret)
+            .compact();
+}
+Code Example: Token Verification
+This code demonstrates how to verify and extract user information from a received JWT:
+
+java
+Copy code
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureException;
+
+// Verify and extract information from a JWT token
+public Claims verifyToken(String token) {
+    String secret = /* Your secret key */;
+    
+    try {
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
+    } catch (SignatureException e) {
+        // Handle invalid tokens
+        return null;
+    }
+}
+These code examples illustrate a simplified JWT-based authentication and authorization system within our REST API. In a real-world application, you would integrate these components into your user management and request processing mechanisms, including the assignment of roles and permissions.
+
+
 ## Professional Terminology
 
 Farm to Market utilizes the Spring Boot framework for rapid application development. Spring Boot simplifies the development process by offering pre-built configurations and tools, allowing developers to focus on writing application code rather than setting up infrastructure.
